@@ -1,0 +1,2 @@
+# SmartContracts
+just for study
