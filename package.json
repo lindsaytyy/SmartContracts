@@ -1,0 +1,25 @@
+{
+  "name": "ehter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3",
+    "cors": "^2.8.5",
+    "ethers": "^6.13.4",
+    "express": "^4.21.2",
+    "keccak256": "^1.0.6",
+    "merkletreejs": "^0.4.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.17",
+    "hardhat-deploy": "^0.14.0"
+  }
+}
