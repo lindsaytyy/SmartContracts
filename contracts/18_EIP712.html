@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EIP712 demo</title>
+  </head>
+  <body>
+    <h1>EIP712 DEMO</h1>
+    <label for="name">Name:</label>
+    <input type="text" id="name" value="EIP712Storage" />
+    <br />
+    <label for="chainId">Chain Id:</label>
+    <input type="text" id="chainId" value="31337" />
+    <br />
+    <label for="contractAddress">Contract Address:</label>
+    <input
+      id="contractAddress"
+      value="0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+    />
+    <label for="spender">spender:</label>
+    <input
+      type="text"
+      id="spender"
+      value="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    />
+    <br />
+    <label for="number">number:</label>
+    <input type="text" id="number" value="100" />
+    <br />
+    <br />
+    <button id="connectButton">Connect MetaMask</button>
+    <button id="signPermitButton" disabled>Sign Permit</button>
+    <br />
+    <pre id="signatureOutput"></pre>
+
+    <h5>钱包地址: <span class="showAccount"></span></h5>
+    <h5>ChainID: <span class="showChainID"></span></h5>
+    <h5>ETH 余额: <span class="showETHBalance"></span></h5>
+    <h5>签名数据: <span class="showSignature"></span></h5>
+  </body>
+  <script type="module">
+    import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.3.0/ethers.js";
+    const ethereumButton = document.querySelector(".connect");
+    const showAccount = document.querySelector(".showAccount");
+    const showChainID = document.querySelector(".showChainID");
+    const showETHBalance = document.querySelector(".showETHBalance");
+    const showSignature = document.querySelector(".showSignature");
+    const connectButton = document.getElementById("connectButton");
+    const signPermitButton = document.getElementById("signPermitButton");
+
+    let provider;
+    let signer;
+    async function connectMetaMask() {
+      provider = new ethers.BrowserProvider(window.ethereum);
+      //
+      const walletAddress = await provider.send("eth_requestAccounts", []);
+      console.log("walletAddress", walletAddress);
+
+      const walletAddr = walletAddress[0];
+      showAccount.textContent = walletAddr;
+      //
+      const { chainId } = await provider.getNetwork();
+      showChainID.textContent = chainId;
+      //
+      signer = await provider.getSigner();
+      const balance = await provider.getBalance(signer.getAddress());
+      showETHBalance.textContent = balance;
+      signPermitButton.disabled = false;
+    }
+
+    async function signPermit() {
+      const name = document.getElementById("name").value;
+      const version = "1";
+      const chainId = parseInt(document.getElementById("chainId").value);
+      const contractAddress = document.getElementById("contractAddress").value;
+      const spender = document.getElementById("spender").value;
+      const number = document.getElementById("number").value;
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const owner = await signer.getAddress();
+
+      const domain = {
+        name: name,
+        version: version,
+        chainId: chainId,
+        verifyingContract: contractAddress,
+      };
+      const types = {
+        Storage: [
+          { name: "spender", type: "address" },
+          { name: "number", type: "uint256" },
+        ],
+      };
+
+      const message = {
+        spender: spender,
+        number: number,
+      };
+
+      try {
+        console.log("message", message);
+        const signature = await signer.signTypedData(domain, types, message);
+        console.log("Signature:", signature);
+        showSignature.textContent = `${signature}`;
+      } catch (error) {
+        console.error("Error signing permit:", error);
+      }
+    }
+    connectButton.addEventListener(`click`, connectMetaMask);
+    signPermitButton.addEventListener(`click`, signPermit);
+  </script>
+</html>
